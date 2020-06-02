@@ -1,37 +1,93 @@
-## Welcome to GitHub Pages
+How to calculate the Palmer Drought Severity Index (PDSI)
+    
+#prepare the data used & the library 
 
-You can use the [editor on GitHub](https://github.com/Datum2020-eng/hello-world/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+#Instal the percintcon, SPEI and scPDSI and use these library
+library(precintcon) 
+library(scPDSI)
+library(SPEI)
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+#data used for the calculation are 
+    #1. Monthly precipitation series without NA [mm](p)
+    #2. Monthly potential evapotranspiration (PE)
 
-### Markdown
+#prepare daily ranfall data
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+#iMPORT THE DAILY RAINFALL DATA 
+pric<-read.csv(choose.files())
+pric
 
-```markdown
-Syntax highlighted code block
+#calculate the daily rainfall using prcintcon.daily first
+pric.d<-as.precintcon.daily(pric)
+View(pric.d)
 
-# Header 1
-## Header 2
-### Header 3
+now calculate (P) Which is the Monthly precipitation series without NA [mm]
 
-- Bulleted
-- List
+P<-as.precintcon.monthly(pric.d)
+View(P)
 
-1. Numbered
-2. List
+#export P the Monthly precipitation series without NA [mm]
+sink(P.csv)
+print(P)
+sink()
 
-**Bold** and _Italic_ and `Code` text
+#go to the directory where the output (p) is stored in my case C drive Document 
 
-[Link](url) and ![Image](src)
-```
+#Calculate PE
+  #2. Monthly potential evapotranspiration (PE) USING SPEI package 
+#first prepare the Tavg data in excel 
+#calculate Tavg 
+#import Tavg data
+Tavg<-read.csv(choose.files())
+View(Tavg)
+#now
+# calculate PE using SPEI thornthwaite model
+ PE<-thornthwaite(Tavg$Tavg, lat = 13.9731)
+View(PE)
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+#you can also calculate PE using penman
+#now export the output (PE) as csv
+#export output
+sink("PE.csv")
+print(PE)
+sink()
 
-### Jekyll Themes
+# go to the directory where the data exported 
+  (c drive document) In may case
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Datum2020-eng/hello-world/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+# prepare the PSDI data as (combing the P & PE output)
+# Import the data 
 
-### Support or Contact
+Pdsi_data<-read.csv(choose.files())
+View(Pdsi_data)
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+library(scPDSI)
+
+#now we can calculate the PSDI which is drought indicator and map it 
+#calculate PDSI & Plot 
+first assign the p and PE data 
+
+PE<-Pdsi_data$PE
+P<-Pdsi_data$P
+
+sc_pdsi<-pdsi(Pdsi_data$P, Pdsi_data$PE, start = 1977, sc=FALSE)
+
+
+#plot PDSI
+plot(sc_pdsi)
+
+#plot PHDI
+plot(sc_pdsi, index = "PHDI")
+
+#plot weighted PDSI
+plot(sc_pdsi, index = "WPLM")
+
+*****************Thank you for waching if you like it share it*******************
+If you have comment & questions please send me 
+
+options(PDSI.coe.K1.1 = 1.6)
+
+
+drought intensity???
+
+help(drought) 
